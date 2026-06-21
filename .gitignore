@@ -1,12 +1,26 @@
-# Built binaries
+# =========================
+# Binaries
+# =========================
 *.exe
-dl2
-benchmark
-swarmbench
-tracker
-server
+*.exe~
+*.dll
+*.so
+*.dylib
 
+# Build output
+bin/
+dist/
+build/
+release/
+
+# Go
+*.test
+*.out
+coverage.out
+
+# =========================
 # Downloaded test files
+# =========================
 *.zip
 *.bin
 bench_*.tmp
@@ -15,14 +29,48 @@ copy*.zip
 test_*.bin
 test_*.zip
 
-# Go
-*.test
-*.out
-vendor/
-
-# OS / editor
-.DS_Store
-Thumbs.db
+# =========================
+# IDEs
+# =========================
 .vscode/
 .idea/
 *.swp
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Environment
+# =========================
+.env
+.env.local
+
+# =========================
+# Temporary files
+# =========================
+tmp/
+temp/
+.cache/
+
+# =========================
+# Go Vendor (optional)
+# =========================
+# vendor/
+
+# =========================
+# Keep source code!
+# DO NOT IGNORE THESE
+# =========================
+# cmd/
+# internal/
+# pkg/
+# browser-extension/
+# examples/
