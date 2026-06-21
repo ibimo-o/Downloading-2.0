@@ -1,4 +1,10 @@
-const DL2_API = "http://localhost:8787";
+const DL2_API = "https://62-238-18-69.nip.io";
+const DL2_TOKEN = "fd20e3665da9258c73f18b6acf0fb12b4492d7f5c8e617a021d05c29908d0e4b";
+
+const DL2_HEADERS = {
+  "Content-Type": "application/json",
+  "X-DL2-Token": DL2_TOKEN,
+};
 
 async function refresh() {
   const statusEl = document.getElementById("serverStatus");
@@ -6,13 +12,34 @@ async function refresh() {
 
   let jobs = [];
   try {
-    const resp = await fetch(`${DL2_API}/jobs`);
-    if (!resp.ok) throw new Error("bad status");
+    const resp = await fetch(`${DL2_API}/jobs`, {
+      headers: DL2_HEADERS,
+    });
+    if (!resp.ok) {
+      if (resp.status === 401) {
+        statusEl.textContent = "Invalid DL2 API token";
+        statusEl.className = "status err";
+        jobsEl.innerHTML = "";
+        return;
+      } else if (resp.status === 403) {
+        statusEl.textContent = "Access denied to DL2 Cloud";
+        statusEl.className = "status err";
+        jobsEl.innerHTML = "";
+        return;
+      } else if (resp.status >= 500) {
+        statusEl.textContent = "DL2 Cloud unavailable";
+        statusEl.className = "status err";
+        jobsEl.innerHTML = "";
+        return;
+      } else {
+        throw new Error("bad status: " + resp.status);
+      }
+    }
     jobs = await resp.json();
-    statusEl.textContent = "dl2 server connected";
+    statusEl.textContent = "Connected to DL2 Cloud";
     statusEl.className = "status ok";
   } catch (err) {
-    statusEl.textContent = "dl2 server not running (start server.exe). Falling back to normal downloads.";
+    statusEl.textContent = "Cannot reach DL2 Cloud";
     statusEl.className = "status err";
     jobsEl.innerHTML = "";
     return;

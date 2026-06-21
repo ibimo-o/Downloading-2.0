@@ -4,8 +4,14 @@
 // overhead of spinning up multi-connection chunking isn't worth it for a
 // 50KB file.
 
-const DL2_API = "http://localhost:8787";
+const DL2_API = "https://62-238-18-69.nip.io";
+const DL2_TOKEN = "fd20e3665da9258c73f18b6acf0fb12b4492d7f5c8e617a021d05c29908d0e4b";
 const MIN_SIZE_BYTES = 5 * 1024 * 1024; // only intercept downloads >= 5MB
+
+const DL2_HEADERS = {
+  "Content-Type": "application/json",
+  "X-DL2-Token": DL2_TOKEN,
+};
 
 // Track which downloads we've already redirected, to avoid loops (since
 // triggering a "normal" save via the API doesn't go through this listener
@@ -22,7 +28,7 @@ chrome.downloads.onCreated.addListener(async (downloadItem) => {
   try {
     const resp = await fetch(`${DL2_API}/download`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: DL2_HEADERS,
       body: JSON.stringify({
         url: downloadItem.url,
         connections: 16,
@@ -30,8 +36,17 @@ chrome.downloads.onCreated.addListener(async (downloadItem) => {
     });
 
     if (!resp.ok) {
-      // dl2 server not running or rejected it -- let the browser's normal
+      // DL2 Cloud rejected the request -- let the browser's normal
       // download proceed untouched.
+      if (resp.status === 401) {
+        console.error("DL2 API: Invalid authentication token");
+      } else if (resp.status === 403) {
+        console.error("DL2 API: Access denied");
+      } else if (resp.status >= 500) {
+        console.error("DL2 API: Server unavailable (status", resp.status, ")");
+      } else {
+        console.error("DL2 API: Request failed with status", resp.status);
+      }
       return;
     }
 
@@ -52,10 +67,9 @@ chrome.downloads.onCreated.addListener(async (downloadItem) => {
 
     notify("Downloading 2.0 took over", downloadItem.filename || downloadItem.url);
   } catch (err) {
-    // dl2 API server isn't running -- fail silently and let the browser's
-    // normal download proceed. This is the expected state for anyone who
-    // hasn't started `server.exe` locally.
-    console.log("dl2 server unavailable, falling back to normal download:", err);
+    // DL2 Cloud unreachable -- fail silently and let the browser's
+    // normal download proceed.
+    console.error("Cannot reach DL2 Cloud, falling back to normal download:", err);
   }
 });
 

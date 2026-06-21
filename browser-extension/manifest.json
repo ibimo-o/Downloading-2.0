@@ -3,8 +3,14 @@
   "name": "Downloading 2.0",
   "version": "1.0.0",
   "description": "Routes downloads through the dl2 multi-connection, peer-assisted download engine instead of the browser's default single-connection downloader.",
-  "permissions": ["downloads", "downloads.ui", "storage"],
-  "host_permissions": ["http://localhost:8787/*"],
+  "permissions": [
+    "downloads",
+    "downloads.ui",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://62-238-18-69.nip.io/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
