@@ -1,0 +1,28 @@
+[Unit]
+Description=dl2 API server
+After=network.target
+
+[Service]
+Type=simple
+User=dl2
+Group=dl2
+WorkingDirectory=/opt/dl2
+# IMPORTANT: -token is required here -- without it, anyone who can reach
+# this server can trigger arbitrary downloads to disk. Generate one with:
+#   openssl rand -hex 32
+# and put it in /opt/dl2/dl2-server.env as DL2_TOKEN=<value>
+EnvironmentFile=/opt/dl2/dl2-server.env
+ExecStart=/opt/dl2/server -port 8787 -dir /opt/dl2/downloads -token ${DL2_TOKEN} -rate-limit 5 -rate-burst 10
+Restart=on-failure
+RestartSec=5
+
+# Hardening: the service does not need broad filesystem or network
+# capabilities beyond serving HTTP and writing to its own downloads dir.
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/dl2/downloads
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

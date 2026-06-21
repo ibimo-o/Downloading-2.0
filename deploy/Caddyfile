@@ -1,0 +1,23 @@
+# Caddyfile -- reverse proxy with automatic HTTPS (Let's Encrypt) in front
+# of the dl2 API server, which itself only listens on localhost.
+#
+# No domain yet? Use nip.io -- it's a free service that resolves
+# <your-ip-with-dashes>.nip.io directly to your IP, no DNS setup needed,
+# and Caddy can issue a real HTTPS cert for it since it's a real
+# resolvable hostname. Replace the IP below with your own VPS IP.
+#
+# Example for IPv4 62.238.18.69:
+#   62-238-18-69.nip.io
+#
+# Once you have a real domain, just replace the line below with it --
+# no other changes needed.
+
+62-238-18-69.nip.io {
+	reverse_proxy localhost:8787
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy no-referrer-when-downgrade
+	}
+}
