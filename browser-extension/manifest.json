@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Downloading 2.0",
+  "version": "1.0.0",
+  "description": "Routes downloads through the dl2 multi-connection, peer-assisted download engine instead of the browser's default single-connection downloader.",
+  "permissions": ["downloads", "downloads.ui", "storage"],
+  "host_permissions": ["http://localhost:8787/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Downloading 2.0"
+  },
+  "icons": {
+    "48": "icon48.png"
+  }
+}

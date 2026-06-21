@@ -1,0 +1,28 @@
+# Built binaries
+*.exe
+dl2
+benchmark
+swarmbench
+tracker
+server
+
+# Downloaded test files
+*.zip
+*.bin
+bench_*.tmp
+copy*.tmp
+copy*.zip
+test_*.bin
+test_*.zip
+
+# Go
+*.test
+*.out
+vendor/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

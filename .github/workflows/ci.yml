@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build, vet, and test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ["1.22"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Verify modules
+        run: go mod verify
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Build all binaries
+        run: |
+          go build -o /dev/null ./cmd/dl2
+          go build -o /dev/null ./cmd/tracker
+          go build -o /dev/null ./cmd/benchmark
+          go build -o /dev/null ./cmd/swarmbench
+          go build -o /dev/null ./cmd/server
+
+      - name: Test
+        run: go test ./... -v -race
+
+  cross-platform-build:
+    name: Cross-platform build check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Build for ${{ matrix.goos }}/${{ matrix.goarch }}
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: go build -o /dev/null ./cmd/dl2

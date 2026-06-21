@@ -1,0 +1,75 @@
+name: Release
+
+# Triggers on any version tag push, e.g. `git tag v1.0.0 && git push origin v1.0.0`.
+# Builds dl2, tracker, server, benchmark, compare, fulltest, swarmbench for
+# Windows/Linux/macOS (amd64 + arm64) and attaches them to a GitHub Release.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: windows
+            goarch: amd64
+            ext: .exe
+          - goos: windows
+            goarch: arm64
+            ext: .exe
+          - goos: linux
+            goarch: amd64
+            ext: ""
+          - goos: linux
+            goarch: arm64
+            ext: ""
+          - goos: darwin
+            goarch: amd64
+            ext: ""
+          - goos: darwin
+            goarch: arm64
+            ext: ""
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Build binaries
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          mkdir -p dist
+          for cmd in dl2 tracker server benchmark compare fulltest swarmbench; do
+            go build -o "dist/${cmd}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}" "./cmd/${cmd}"
+          done
+
+      - name: Package archive
+        run: |
+          cd dist
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            zip "dl2-${{ matrix.goos }}-${{ matrix.goarch }}.zip" *
+          else
+            tar -czf "dl2-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz" *
+          fi
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/dl2-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+            dist/dl2-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz
+          fail_on_unmatched_files: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
