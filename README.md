@@ -440,10 +440,3 @@ just a download manager):
   speed, not just availability.
 - Package the extension for the Chrome Web Store (requires a real icon,
   privacy policy, and review).
-
-## Notes on this build
-
-This code was written and reviewed in a sandbox without a Go toolchain or
-internet access, so it could not be compiled there. Build and test it on
-your own machine — confirm with `go build` and a real download before
-relying on it.
